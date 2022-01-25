@@ -35,7 +35,7 @@ public class DonwloadMimes extends MimesToString{
     }
 
 
-    public void processFiles() throws IOException {
+    public boolean processFiles() throws IOException {
 
         var elements = MakeConnection(this.url).orElseThrow();
 
@@ -43,7 +43,7 @@ public class DonwloadMimes extends MimesToString{
             return e.attr("abs:src");
         }).filter(el -> !el.isEmpty()).collect(Collectors.toList());
 
-        collect.forEach(url -> {
+        for(String url : collect){
             try {
                 var link = new URL(url);
                 final String detect = TIKA.detect(link);
@@ -55,21 +55,15 @@ public class DonwloadMimes extends MimesToString{
                     var mimeType = MIME_TYPES.forName(mime);
                     var ext = mimeType.getExtension();
                     Path imagePath = download.resolve(UUID.randomUUID().toString().concat(ext));
-                    try(OutputStream writer = Files.newOutputStream(imagePath);){
-                        writer.write(bytes);
-                    }
-                    catch(Exception e){
-                        log.warn("Error writing in file");
-                    }
-                }
-                else{
-                    log.warn("mime Type {} not detected on url {}", mime, url);
+                    OutputStream writer = Files.newOutputStream(imagePath);
+                    writer.write(bytes);
                 }
             } catch (IOException | MimeTypeException e) {
-                log.warn("Ecxeption retrieving data",e);
+                log.warn("Exception retrieving data",e);
+                return false;
             }
-        });
-
+        }
+        return true;
     }
 
     private Optional<Elements> MakeConnection(String url) {
