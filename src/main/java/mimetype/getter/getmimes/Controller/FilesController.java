@@ -1,7 +1,10 @@
 package mimetype.getter.getmimes.Controller;
 import mimetype.getter.getmimes.Model.DonwloadMimes;
 import mimetype.getter.getmimes.Types.MimeType;
+import org.apache.tika.mime.MimeTypeException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -17,7 +20,8 @@ public class FilesController {
     DonwloadMimes mimes;
 
     @GetMapping
-    public void writeMimes(@RequestParam String url, @RequestParam MimeType type) throws IOException {
-         new DonwloadMimes(type, url, Path.of(FilePath)).processFiles();
+    public boolean writeMimes(@RequestParam String url, @RequestParam MimeType type) throws IOException {
+         mimes = new DonwloadMimes(type, url, Path.of(FilePath));
+         return mimes.processFiles();
     }
 }
